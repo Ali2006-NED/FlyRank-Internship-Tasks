@@ -91,6 +91,16 @@ async function getAllTasks(db) {
     }
 }
 
+async function getTaskById(db, id) {
+    try {
+        const rows = await allQuery(db, `SELECT * FROM tasks WHERE id = ${id}`);
+        return rows[0];
+    } catch (err) {
+        console.error('Task not found:', err.message);
+        throw err;
+    }
+}
+
 async function initializeDatabase() {
     const db = await connectToDatabase();
     await createTasksTable(db);
@@ -108,5 +118,6 @@ module.exports = {
     insertSampleTasks,
     CloseDatabase,
     initializeDatabase,
-    getAllTasks
+    getAllTasks,
+    getTaskById
 };
