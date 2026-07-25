@@ -101,6 +101,16 @@ async function getTaskById(db, id) {
     }
 }
 
+async function insertTask(db, title) {
+    try {
+        const result = await runQuery(db, `INSERT INTO tasks (title, done) VALUES ('${title}', 0)`);
+        return result;
+    } catch (err) {
+        console.error('Error inserting task:', err.message);
+        throw err;
+    }
+}
+
 async function initializeDatabase() {
     const db = await connectToDatabase();
     await createTasksTable(db);
@@ -119,5 +129,6 @@ module.exports = {
     CloseDatabase,
     initializeDatabase,
     getAllTasks,
-    getTaskById
+    getTaskById,
+    insertTask
 };

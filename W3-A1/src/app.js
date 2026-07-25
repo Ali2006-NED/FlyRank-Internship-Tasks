@@ -4,7 +4,7 @@
 const express = require('express');
 const swaggerUi = require('swagger-ui-express');
 
-const { connectToDatabase, createTasksTable, insertSampleTasks, CloseDatabase, getAllTasks,initializeDatabase,getTaskById } = require('./db/db');
+const { connectToDatabase, createTasksTable, insertSampleTasks, CloseDatabase, getAllTasks,initializeDatabase,getTaskById, insertTask } = require('./db/db');
 
 const app = express();
 app.disable('x-powered-by');
@@ -44,6 +44,19 @@ app.get('/tasks/:id', async (req, res) => {
   }
   await CloseDatabase(db);
   
+});
+
+// Create a new task.
+app.post('/tasks', async (req, res) => {
+  const title = req.body.title;
+  const db = await connectToDatabase();
+  if (title != null) {
+    await insertTask(db, title);
+    res.status(201).send({ message: 'Task created successfully' });
+  } else {
+    res.status(400).send({ error: 'Title is required' });
+  }
+  await CloseDatabase(db);
 });
 
 
