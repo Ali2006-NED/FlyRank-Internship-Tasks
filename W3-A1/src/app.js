@@ -4,7 +4,11 @@
 const express = require('express');
 const swaggerUi = require('swagger-ui-express');
 
-const { connectToDatabase, createTasksTable, insertSampleTasks, CloseDatabase, getAllTasks,initializeDatabase,getTaskById, insertTask } = require('./db/db');
+const { connectToDatabase, createTasksTable, 
+  insertSampleTasks, CloseDatabase, 
+  getAllTasks,initializeDatabase,
+  getTaskById, insertTask,
+updateTask, deleteTask } = require('./db/db');
 
 const app = express();
 app.disable('x-powered-by');
@@ -38,7 +42,7 @@ app.get('/tasks/:id', async (req, res) => {
   const db = await connectToDatabase();
   const task = await getTaskById(db, id);
   if (task) {
-    res.send({ 'task': task });
+    res.status(201).send({ 'task': task });
   } else {
     res.status(404).send({ error: 'Task not found' });
   }
@@ -55,6 +59,42 @@ app.post('/tasks', async (req, res) => {
     res.status(201).send({ message: 'Task created successfully' });
   } else {
     res.status(400).send({ error: 'Title is required' });
+  }
+  await CloseDatabase(db);
+});
+
+// Update a task's title and completion status.
+app.put('/tasks/:id', async (req, res) => {
+  const id = req.params.id;
+  const title = req.body.title;
+  const done = req.body.done;
+  const db = await connectToDatabase();
+  const task = await getTaskById(db, id);
+
+  if (task != []) {
+    if (title.trim() != '') {
+      await updateTask(db, id, title, done);
+      res.status(200).send({ message: `Task ${id} updated successfully` });
+    } else {
+      res.status(400).send({ error: 'Title is required' });
+    } 
+} else {
+  res.status(404).send({ error: `Task ${id} not found` });
+}
+
+
+});
+
+// Delete a task by identifier.
+app.delete('/tasks/:id', async (req, res) => {
+  const id = req.params.id;
+  const db = await connectToDatabase();
+  const task = await getTaskById(db, id);
+  if (task) {
+    await deleteTask(db, id);
+    res.status(200).send({ message: `Task ${id} deleted successfully` });
+  } else {
+    res.status(404).send({ error: `Task ${id} not found` });
   }
   await CloseDatabase(db);
 });

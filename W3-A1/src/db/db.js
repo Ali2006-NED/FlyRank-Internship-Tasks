@@ -111,16 +111,34 @@ async function insertTask(db, title) {
     }
 }
 
+
+async function updateTask(db, id, title, done=false) {
+    try{
+        const row = await runQuery(db, `UPDATE tasks SET title='${title}', done=${done} WHERE id=${id}`)
+        return row;
+    } catch (err){
+        console.error('Error updating task:', err.message);
+        throw err;
+    }
+}
+
+async function deleteTask(db, id) {
+    try {
+        const row = await runQuery(db, `DELETE FROM tasks WHERE id = ${id}`);
+        return row;
+    } catch (err) {
+        console.error('Error deleting task:', err.message);
+        throw err;
+    }
+}
+
+
 async function initializeDatabase() {
     const db = await connectToDatabase();
     await createTasksTable(db);
     await insertSampleTasks(db);
     await CloseDatabase(db);
 }
-
-// initializeDatabase().catch((err) => {
-//     console.error('Database initialization failed:', err.message);
-// });
 
 module.exports = {
     connectToDatabase,
@@ -130,5 +148,7 @@ module.exports = {
     initializeDatabase,
     getAllTasks,
     getTaskById,
-    insertTask
+    insertTask,
+    updateTask,
+    deleteTask
 };
