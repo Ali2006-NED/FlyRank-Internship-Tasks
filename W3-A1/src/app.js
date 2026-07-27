@@ -8,7 +8,7 @@ const { connectToDatabase, createTasksTable,
   insertSampleTasks, CloseDatabase, 
   getAllTasks,initializeDatabase,
   getTaskById, insertTask,
-updateTask, deleteTask } = require('./db/db');
+updateTask, deleteTask, getTaskStats } = require('./db/db');
 
 const app = express();
 app.disable('x-powered-by');
@@ -95,6 +95,18 @@ app.delete('/tasks/:id', async (req, res) => {
     res.status(200).send({ message: `Task ${id} deleted successfully` });
   } else {
     res.status(404).send({ error: `Task ${id} not found` });
+  }
+  await CloseDatabase(db);
+});
+
+
+app.get('/stats', async (req, res) => {
+  const db = await connectToDatabase();
+  const stats = await getTaskStats(db);
+  if (stats) {
+    res.status(200).send({ stats });
+  } else {
+    res.status(404).send({ error: 'Task stats not found' });
   }
   await CloseDatabase(db);
 });

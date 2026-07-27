@@ -132,6 +132,22 @@ async function deleteTask(db, id) {
     }
 }
 
+async function getTaskStats(db) {
+    try {
+        const totalTasks = await allQuery(db, `SELECT COUNT(*) AS total FROM tasks`);
+        const completedTasks = await allQuery(db, `SELECT COUNT(*) AS completed FROM tasks WHERE done = 1`);
+        const pendingTasks = await allQuery(db, `SELECT COUNT(*) AS pending FROM tasks WHERE done = 0`);
+        return {
+            total: totalTasks[0].total,
+            completed: completedTasks[0].completed,
+            pending: pendingTasks[0].pending
+        };
+    } catch (err) {
+        console.error('Error retrieving task stats:', err.message);
+        throw err;
+    }
+}
+
 
 async function initializeDatabase() {
     const db = await connectToDatabase();
@@ -150,5 +166,6 @@ module.exports = {
     getTaskById,
     insertTask,
     updateTask,
-    deleteTask
+    deleteTask,
+    getTaskStats
 };
