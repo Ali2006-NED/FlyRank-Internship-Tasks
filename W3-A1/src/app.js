@@ -26,15 +26,13 @@ app.get('/', (req, res) => {
 // Retrieve all tasks.
 app.get('/tasks', async (req, res) => {
     const db = await connectToDatabase();
-    try {
-        const tasks = await getAllTasks(db);
-        res.send({ tasks });
-    } catch (err) {
-        res.status(500).send({ error: 'Unable to retrieve tasks:' + err.message });
-    } finally {
-        await CloseDatabase(db);
-    }
-});
+    const tasks = await getAllTasks(db);
+    if (tasks) {
+      res.status(200).send({ 'tasks':tasks });
+    } else {
+      res.status(404).send( {error: "Tasks Not found"})
+    await CloseDatabase(db);
+}});
 
 // Retrieve a single task by its identifier.
 app.get('/tasks/:id', async (req, res) => {
