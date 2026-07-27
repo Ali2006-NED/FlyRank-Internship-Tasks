@@ -3,6 +3,7 @@
 
 const express = require('express');
 const swaggerUi = require('swagger-ui-express');
+const openapiDocument = require('./openapi.json');
 
 const { connectToDatabase, createTasksTable, 
   insertSampleTasks, CloseDatabase, 
@@ -17,6 +18,7 @@ initializeDatabase();
 
 // // Middleware setup.
 app.use(express.json());
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiDocument));
 
 // Simple smoke-test endpoint.
 app.get('/', (req, res) => {
@@ -79,6 +81,7 @@ app.put('/tasks/:id', async (req, res) => {
 } else {
   res.status(404).send({ error: `Task ${id} not found` });
 }
+await CloseDatabase(db);
 
 
 });
